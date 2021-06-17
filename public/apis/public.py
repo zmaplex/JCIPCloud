@@ -11,6 +11,12 @@ from base.tools import Geoip2Query
 from public.models import IPInfo, RiskStatus
 from public.serializers.public import IPInfoSerializer, GoogleRecaptchaVerifySerializer
 
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
 
 class PublicView(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.AllowAny,)
@@ -19,6 +25,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'ipaddress'
     lookup_value_regex = "[^/]+"
     geoip_2_query = Geoip2Query()
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def get_queryset(self):
         return self.queryset.all()
@@ -51,7 +58,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         """
         return self.report_idc(request, ipaddress)
 
-    @csrf_exempt
+
     @action(methods=['POST'], detail=False, permission_classes=[permissions.AllowAny],
             serializer_class=GoogleRecaptchaVerifySerializer)
     def query_token(self, request, *args, **kwargs):
