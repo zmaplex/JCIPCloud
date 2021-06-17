@@ -1,4 +1,6 @@
+from django.utils.decorators import method_decorator
 from django.views import generic
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 # Create your views here.
 from base.tools import Geoip2Query
@@ -10,6 +12,10 @@ class IndexView(generic.ListView):
     template_name = 'public/index.html'
     context_object_name = 'ip_info_list'
     geoip_2_query = Geoip2Query()
+
+    @method_decorator(xframe_options_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(IndexView, self).dispatch(*args, **kwargs)
 
     def get_ipaddress(self) -> str:
         request = self.request
@@ -30,7 +36,7 @@ class IndexView(generic.ListView):
         ip = self.get_ipaddress()
         visitor_ip_data = {'ip': ip}
         visitor_ip_data.update(self.geoip_2_query.query_city(ip).raw_dict)
-        context['visitor_ip_data']  = visitor_ip_data
+        context['visitor_ip_data'] = visitor_ip_data
         print(context)
         return context
 
