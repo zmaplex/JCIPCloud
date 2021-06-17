@@ -12,6 +12,7 @@
 
 ```shell script
 # 使用虚拟环境
+
 python3 -m venv dj_venv
 # 激活虚拟环境
 source dj_venv/bin/activate
@@ -28,6 +29,8 @@ python manage.py createsuperuser
 python manage.py collectstatic
 # 启用
 source dj_venv/bin/activate && dj_venv/bin/gunicorn --worker-class=gevent --worker-connections=1000 --workers=3  --bind unix:/var/run/IPCloud.sock IPCloud.wsgi:application
+# 可选
+cp IPCloud.service /usr/lib/systemd/system/
 ```
 
 

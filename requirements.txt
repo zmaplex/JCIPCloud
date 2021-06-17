@@ -1,3 +1,4 @@
+wheel
 pycryptodome
 six
 python-decouple
@@ -9,7 +10,6 @@ pytz
 sqlparse
 coreapi
 django-filter~=2.4.0
-django-simpleui
 mysqlclient
 redis
 celery
@@ -22,7 +22,6 @@ packaging
 django-json-widget
 
 gunicorn
-wheel
 gevent
 drf-spectacular
 
