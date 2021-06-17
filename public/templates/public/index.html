@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>真人鉴别-锦城朴妙</title>
+
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            margin: 0px;
+            background: radial-gradient(#CECECE, #fff);
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 340px;
+            height: 340px;
+            border-radius: 100%;
+            background: linear-gradient(165deg, rgba(255, 255, 255, 1) 0%, rgb(220, 220, 220) 40%, rgb(170, 170, 170) 98%, rgb(10, 10, 10) 100%);
+            position: relative;
+        }
+
+        header {
+            /* 我们希望 header 采用固定的高度，只占用必须的空间 */
+            /* 0 flex-grow, 0 flex-shrink, auto flex-basis */
+            flex: 0 0 auto;
+        }
+
+        .main-content {
+            /* 将 flex-grow 设置为1，该元素会占用全部可使用空间
+               而其他元素该属性值为0，因此不会得到多余的空间*/
+            /* 1 flex-grow, 0 flex-shrink, auto flex-basis */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1 0 auto;
+            flex-direction: column;
+        }
+
+        footer {
+            /* 和 header 一样，footer 也采用固定高度*/
+            /* 0 flex-grow, 0 flex-shrink, auto flex-basis */
+            flex: 0 0 auto;
+            margin-bottom: 24px;
+        }
+
+        .loader {
+
+        }
+
+        .loader:before {
+            position: absolute;
+            content: '';
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            border-bottom: 0 solid #ffffff05;
+
+            box-shadow: 0 -10px 20px 20px #ffffff40 inset,
+            0 -5px 15px 10px #ffffff50 inset,
+            0 -2px 5px #ffffff80 inset,
+            0 -3px 2px #ffffffBB inset,
+            0 2px 0px #ffffff,
+            0 2px 3px #ffffff,
+            0 5px 5px #ffffff90,
+            0 10px 15px #ffffff60,
+            0 10px 20px 20px #ffffff40;
+            filter: blur(3px);
+            animation: 2s rotate linear infinite;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg)
+            }
+        }
+
+        .grecaptcha-badge {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+<header></header>
+<div class="main-content">
+    <div class="container">
+        <div class="loader"></div>
+
+    </div>
+    <div style="margin-top: 24px;color: #6c757d"> {{ visitor_ip_data.ip }}</div>
+    <div style="margin-top: 4px;color: #6c757d"> {{ visitor_ip_data.asn }}</div>
+    <div style="margin-top: 4px;color: #6c757d"> {% firstof visitor_ip_data.continent %} {% firstof visitor_ip_data.country %} {% firstof  visitor_ip_data.province %} </div>
+</div>
+
+
+<footer>
+    <div style="text-align: center ">
+        <div style="color: #6c757d !important;font-size: 4px">Copyright &copy; 2021 - Jincheng Park Miao Technology
+            Limited
+        </div>
+        <div style="color: #6c757d !important;font-size: 4px">This site is protected by reCAPTCHA and the Google
+            <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+            <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+<script src="https://www.recaptcha.net/recaptcha/api.js?render=6LcOlzcbAAAAALFsMIBQYHZiKxL7oasz2AbsFOWy"></script>
+<script>
+    grecaptcha.ready(function () {
+        grecaptcha.execute('6LcOlzcbAAAAALFsMIBQYHZiKxL7oasz2AbsFOWy', {action: 'login'}).then(function (token) {
+            console.log(token)
+            post(token)
+        });
+    });
+
+    function post(token) {
+        let url = window.location.protocol + '//' + window.location.host
+        axios({
+            method: 'post',
+            url: 'url' + '/api/public/query_token/',
+            data: {
+                token: token
+            }
+        }).then(function (response) {
+            console.log(response)
+            window.close()
+        });
+    }
+</script>
+<script>
+    window.addEventListener('DOMContentLoaded', event => {
+
+        // Navbar shrink function
+        var navbarShrink = function () {
+            const navbarCollapsible = document.body.querySelector('#mainNav');
+            if (!navbarCollapsible) {
+                return;
+            }
+
+            if (window.scrollY === 0) {
+                navbarCollapsible.classList.remove('navbar-shrink')
+            } else {
+                navbarCollapsible.classList.add('navbar-shrink')
+            }
+
+        };
+
+        // Shrink the navbar
+        navbarShrink();
+
+        // Shrink the navbar when page is scrolled
+        document.addEventListener('scroll', navbarShrink);
+
+        // Activate Bootstrap scrollspy on the main nav element
+        const mainNav = document.body.querySelector('#mainNav');
+        if (mainNav) {
+            new bootstrap.ScrollSpy(document.body, {
+                target: '#mainNav',
+                offset: 74,
+            });
+        }
+
+    });
+
+</script>
+</body>
+</html>
