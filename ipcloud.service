@@ -1,0 +1,14 @@
+[Unit]
+Description=IPCloud system developed by Jincheng Park Second Technology Co., Ltd.
+After=network.target
+
+[Service]
+User=root
+Group=www
+WorkingDirectory=/www/wwwroot/IPCloud
+Restart=always
+RestartSec=5
+ExecStart=/www/wwwroot/IPCloud/dj_venv/bin/gunicorn --worker-class=gevent --worker-connections=1000 --workers=3  --bind unix:/var/run/IPCloud.sock IPCloud.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

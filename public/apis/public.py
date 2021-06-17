@@ -24,16 +24,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
 
     @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=True, permission_classes=[permissions.AllowAny])
-    def query(self, request, ipaddress):
-        """
-        todo 这里应该改为 report idc 报告 IDC 的接口
-        查询IP，如果是IDC就入库，否则不处理。
-        :param request:
-        :param ipaddress:
-        :return:
-        """
-        print(request.META.get('HTTP_X_FORWARDED_FOR'))
-
+    def report_idc(self, request, ipaddress):
         try:
             data = IPInfo.objects.get(ipaddress=ipaddress)
             return Response(IPInfoSerializer(data).data)
@@ -46,6 +37,18 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
                 return Response(IPInfoSerializer(obj).data)
             else:
                 return Response({'detail': 'not found'}, status=404)
+
+
+    @cache_response(timeout=1 * 60, cache='default')
+    @action(methods=['GET'], detail=True, permission_classes=[permissions.AllowAny])
+    def query(self, request, ipaddress):
+        """
+        todo 要删除
+        :param request:
+        :param ipaddress:
+        :return:
+        """
+        return self.report_idc(request, ipaddress)
 
     @action(methods=['POST'], detail=False, permission_classes=[permissions.AllowAny],
             serializer_class=GoogleRecaptchaVerifySerializer)
