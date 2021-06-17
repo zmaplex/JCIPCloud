@@ -27,7 +27,7 @@ python manage.py createsuperuser
 # 复制静态资源
 python manage.py collectstatic
 # 启用
-source dj_venv/bin/activate && dj_venv/bin/gunicorn --worker-class=gevent --worker-connections=1000 --workers=3  --bind unix:/var/run/jcpmpay.sock JCPMPay.wsgi:application
+source dj_venv/bin/activate && dj_venv/bin/gunicorn --worker-class=gevent --worker-connections=1000 --workers=3  --bind unix:/var/run/IPCloud.sock IPCloud.wsgi:application
 ```
 
 
@@ -36,7 +36,7 @@ source dj_venv/bin/activate && dj_venv/bin/gunicorn --worker-class=gevent --work
 ```
     ...
     location / {
-      proxy_pass http://unix:/var/run/jcpmpay.sock;
+      proxy_pass http://unix:/var/run/IPCloud.sock;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -44,12 +44,12 @@ source dj_venv/bin/activate && dj_venv/bin/gunicorn --worker-class=gevent --work
     
     location /static {
       autoindex on;
-      alias  /your_project_directory/static;
+      alias  /www/wwwroot/IPCloud/static;
     }
     
     location /media {
       autoindex on;
-      alias  /your_project_directory/media;
+      alias  /www/wwwroot/media;
     }
     ...
 ```
