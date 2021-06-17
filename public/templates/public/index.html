@@ -120,7 +120,7 @@
 <script src="https://www.recaptcha.net/recaptcha/api.js?render=6LcOlzcbAAAAALFsMIBQYHZiKxL7oasz2AbsFOWy"></script>
 <script>
     grecaptcha.ready(function () {
-        grecaptcha.execute('6LcOlzcbAAAAALFsMIBQYHZiKxL7oasz2AbsFOWy', {action: 'login'}).then(function (token) {
+        grecaptcha.execute('6LcOlzcbAAAAALFsMIBQYHZiKxL7oasz2AbsFOWy', {action: 'homepage'}).then(function (token) {
             console.log(token)
             post(token)
         });
@@ -136,7 +136,7 @@
             }
         }).then(function (response) {
             console.log(response)
-            window.close()
+
         });
     }
 </script>
