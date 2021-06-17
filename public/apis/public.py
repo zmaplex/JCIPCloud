@@ -1,8 +1,8 @@
 import datetime
 
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, permissions
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
@@ -11,12 +11,12 @@ from base.tools import Geoip2Query
 from public.models import IPInfo, RiskStatus
 from public.serializers.public import IPInfoSerializer, GoogleRecaptchaVerifySerializer
 
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
         return  # To not perform the csrf check previously happening
+
 
 class PublicView(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.AllowAny,)
@@ -30,7 +30,6 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.queryset.all()
 
-    @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=True, permission_classes=[permissions.AllowAny])
     def report_idc(self, request, ipaddress):
         try:
@@ -45,19 +44,6 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
                 return Response(IPInfoSerializer(obj).data)
             else:
                 return Response({'detail': 'not found'}, status=404)
-
-
-    @cache_response(timeout=1 * 60, cache='default')
-    @action(methods=['GET'], detail=True, permission_classes=[permissions.AllowAny])
-    def query(self, request, ipaddress):
-        """
-        todo 要删除
-        :param request:
-        :param ipaddress:
-        :return:
-        """
-        return self.report_idc(request, ipaddress)
-
 
     @action(methods=['POST'], detail=False, permission_classes=[permissions.AllowAny],
             serializer_class=GoogleRecaptchaVerifySerializer)
