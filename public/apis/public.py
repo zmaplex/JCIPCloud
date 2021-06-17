@@ -1,6 +1,7 @@
 import datetime
 
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -50,6 +51,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         """
         return self.report_idc(request, ipaddress)
 
+    @csrf_exempt
     @action(methods=['POST'], detail=False, permission_classes=[permissions.AllowAny],
             serializer_class=GoogleRecaptchaVerifySerializer)
     def query_token(self, request, *args, **kwargs):
