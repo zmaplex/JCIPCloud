@@ -27,6 +27,7 @@ from public.apis import public
 router = DefaultRouter()
 router.register(r'public', public.PublicView)
 urlpatterns = [
+    path('', include('public.urls')),
     path('admin/', admin.site.urls),
     path('public/', include('public.urls')),
     url(r'api/', include(router.urls)),
