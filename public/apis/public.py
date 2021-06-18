@@ -61,7 +61,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         """
         time = timezone.now() - datetime.timedelta(hours=2)
 
-        data = self.queryset.filter(recaptcha_score__gte=0.1, update_at__gt=time).values_list('ipaddress', flat=True)
+        data = self.queryset.filter(recaptcha_score__gt=0.1, update_at__gt=time).values_list('ipaddress', flat=True)
         return Response(data)
 
     @cache_response(timeout=1 * 60, cache='default')

@@ -26,7 +26,7 @@ class GoogleRecaptchaVerifySerializer(GeneralSerializer):
         ip_info = geo_ip.query_city(ipaddress)
 
         if score < 0.3 or ip_info.is_idc:
-            score = 0
+            score = 0.1
             risk = RiskStatus.NON_HUMAN
         else:
             risk = RiskStatus.REAL_PERSON
