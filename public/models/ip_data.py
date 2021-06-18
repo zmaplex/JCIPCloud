@@ -19,5 +19,9 @@ class IPInfo(BaseModel):
                                         verbose_name="分数",
                                         help_text="0是机器，1是真人")
 
+    class Meta:
+
+        ordering = ('-update_at',)
+
     def __str__(self):
         return self.ipaddress
