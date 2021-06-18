@@ -15,11 +15,6 @@ class IPInfoSerializer(BaseModelSerializer):
         fields = '__all__'
 
 
-
-
-
-
-
 class GoogleRecaptchaVerifySerializer(GeneralSerializer):
     token = serializers.CharField(max_length=1024, help_text="谷歌前端验证的token")
 
@@ -30,7 +25,7 @@ class GoogleRecaptchaVerifySerializer(GeneralSerializer):
         score = validated_data.get('token', 0)
         ip_info = geo_ip.query_city(ipaddress)
 
-        if score < 0.5:
+        if score < 0.3 or ip_info.is_idc:
             risk = RiskStatus.NON_HUMAN
         else:
             risk = RiskStatus.REAL_PERSON
