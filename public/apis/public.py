@@ -53,6 +53,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
             instance = serializer.save()
             return Response(instance.data)
 
+    @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def the_past_hour_human_ip(self, request, *args, **kwargs):
         """
