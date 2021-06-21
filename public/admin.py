@@ -6,5 +6,5 @@ from public.models import IPInfo
 
 @admin.register(IPInfo)
 class IPInfoAdmin(admin.ModelAdmin):
-    list_display = ['ipaddress', 'asn_info', 'recaptcha_score', 'risk','update_at']
+    list_display = ['ipaddress', 'asn_info', 'recaptcha_score', 'risk', 'update_at', 'source_ip']
     list_filter = ('risk',)
