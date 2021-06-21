@@ -27,6 +27,15 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     geoip_2_query = Geoip2Query()
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
 
+    @staticmethod
+    def get_ipaddress(request) -> str:
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
     def get_queryset(self):
         return self.queryset.all()
 
@@ -40,7 +49,8 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
             if ip_info.is_idc:
                 risk_type = RiskStatus.NON_HUMAN
                 print(ip_info.asn)
-                obj = IPInfo.objects.create(ipaddress=ipaddress, risk=risk_type, asn_info=ip_info.asn)
+                obj = IPInfo.objects.create(ipaddress=ipaddress, risk=risk_type, asn_info=ip_info.asn,
+                                            source_ip=self.get_ipaddress(request))
                 return Response(IPInfoSerializer(obj).data)
             else:
                 return Response({'detail': 'not found'}, status=404)
