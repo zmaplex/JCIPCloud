@@ -4,14 +4,14 @@ import geoip2.database
 import requests
 
 IDCs = ["ALIBABA", "TENCENT", "AMAZON", "AS-CHOOPA",
-        "DATA COMMUNICATION BUSINESS GROUP","GOOGLE"]
+        "DATA COMMUNICATION BUSINESS GROUP", "HKT LIMITED", "ORACLE", "HONG KONG"]
 
 
 class IPInfo:
 
     def __init__(self, **kwargs):
         self.raw_dict = kwargs
-        self.continent = kwargs.get('continent',"unknown" )
+        self.continent = kwargs.get('continent', "unknown")
         self.country = kwargs.get('country', "unknown")
         self.province = kwargs.get('province', "unknown")
         self.country_iso_code = kwargs.get('country_iso_code', "unknown")
@@ -72,7 +72,7 @@ class Geoip2Query():
                        'province_iso_code': data.subdivisions.most_specific.iso_code, 'asn': asn,
                        'is_IDC': self.is_IDC(asn)}
 
-            if data.subdivisions.most_specific.names and locales in data.subdivisions.most_specific.names :
+            if data.subdivisions.most_specific.names and locales in data.subdivisions.most_specific.names:
                 ip_info['province'] = data.subdivisions.most_specific.names[locales]
 
             return IPInfo(**ip_info)
