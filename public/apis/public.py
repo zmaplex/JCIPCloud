@@ -43,7 +43,12 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     def report_idc(self, request, ipaddress):
         try:
             data = IPInfo.objects.get(ipaddress=ipaddress)
-            return Response(IPInfoSerializer(data).data)
+            if data.recaptcha_score == 0:
+                code = 200
+            else:
+                code = 409
+            return Response(IPInfoSerializer(data).data, status=code)
+
         except IPInfo.DoesNotExist:
             ip_info = self.geoip_2_query.query_city(ipaddress)
             if ip_info.is_idc:
