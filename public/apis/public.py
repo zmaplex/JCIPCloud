@@ -1,4 +1,5 @@
 import datetime
+import traceback
 
 from django.utils import timezone
 from rest_framework import viewsets, permissions
@@ -38,6 +39,14 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return self.queryset.all()
+
+    @action(methods=['GET'], detail=True, permission_classes=[permissions.AllowAny])
+    def my_ip(self, request, *args, **kwargs):
+        try:
+            ip = self.get_ipaddress(request)
+            return Response(ip)
+        except Exception:
+            return Response(traceback.format_exc(), status=500)
 
     @action(methods=['GET'], detail=True, permission_classes=[permissions.AllowAny])
     def report_idc(self, request, ipaddress):
