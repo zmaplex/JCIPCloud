@@ -40,7 +40,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.queryset.all()
 
-    @action(methods=['GET'], detail=True, permission_classes=[permissions.AllowAny])
+    @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def my_ip(self, request, *args, **kwargs):
         try:
             ip = self.get_ipaddress(request)
