@@ -22,12 +22,18 @@ class NormalIPInfoSerializer(GeneralSerializer):
         ipaddress = validated_data.get('ipaddress')
         ip_info = geo_ip.query_city(ipaddress)
 
-        source_ip = self.get_ipaddress() + "正常用户"
-        risk = RiskStatus.REAL_PERSON
+        if ip_info.is_idc:
+            risk = RiskStatus.NON_HUMAN
+            source_ip = self.get_ipaddress()
+            score = 0
+        else:
+            risk = RiskStatus.REAL_PERSON
+            source_ip = self.get_ipaddress() + " 正常用户"
+            score = 0.3
         defaults = {'risk': risk,
                     'asn_info': ip_info.asn,
                     'source_ip': source_ip,
-                    'recaptcha_score': 0.3}
+                    'recaptcha_score':score}
 
         obj, created = IPInfo.objects.update_or_create(ipaddress=ipaddress, defaults=defaults)
 
