@@ -15,6 +15,25 @@ class IPInfoSerializer(BaseModelSerializer):
         fields = '__all__'
 
 
+class NormalIPInfoSerializer(GeneralSerializer):
+    ipaddress = serializers.IPAddressField()
+
+    def create(self, validated_data):
+        ipaddress = validated_data.get('ipaddress')
+        ip_info = geo_ip.query_city(ipaddress)
+
+        source_ip = self.get_ipaddress() + "正常用户"
+        risk = RiskStatus.REAL_PERSON
+        defaults = {'risk': risk,
+                    'asn_info': ip_info.asn,
+                    'source_ip': source_ip,
+                    'recaptcha_score': 0.3}
+
+        obj, created = IPInfo.objects.update_or_create(ipaddress=ipaddress, defaults=defaults)
+
+        return IPInfoSerializer(obj)
+
+
 class GoogleRecaptchaVerifySerializer(GeneralSerializer):
     token = serializers.CharField(max_length=1024, help_text="谷歌前端验证的token")
 

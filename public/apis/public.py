@@ -14,7 +14,7 @@ from rest_framework_extensions.cache.decorators import cache_response
 
 from base.tools import Geoip2Query
 from public.models import IPInfo, RiskStatus
-from public.serializers.public import IPInfoSerializer, GoogleRecaptchaVerifySerializer
+from public.serializers.public import IPInfoSerializer, GoogleRecaptchaVerifySerializer, NormalIPInfoSerializer
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -60,6 +60,13 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
             return Response(ip)
         except Exception:
             return Response(traceback.format_exc(), status=500)
+
+    @action(methods=['POST'], detail=False,serializer_class=NormalIPInfoSerializer, permission_classes=[permissions.AllowAny])
+    def report_white_ip(self, request,*args,**kwargs):
+        serializer = NormalIPInfoSerializer(data=request.data,context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            instance = serializer.save()
+            return Response(instance.data)
 
     @action(methods=['GET'], detail=True, permission_classes=[permissions.AllowAny])
     def report_idc(self, request, ipaddress):
