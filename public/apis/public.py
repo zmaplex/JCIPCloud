@@ -43,7 +43,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
 
     @staticmethod
     def random_queryset(queryset: Union[QuerySet, List[IPInfo]]):
-        total = queryset.filter(recaptcha_score__gt=0.1).count()
+        total = queryset.filter(recaptcha_score__gte=0.3).count()
         random_number = 5
         if total < 5:
             random_number = total
@@ -51,7 +51,9 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         L1 = random.sample(range(0, total), random_number)
         data = []
         for i in L1:
-            data.append(queryset.filter(recaptcha_score__gt=0.1).values_list('ipaddress', flat=True)[i])
+            data.append(queryset.filter(recaptcha_score__gte=0.3, risk=RiskStatus.REAL_PERSON).values_list('ipaddress',
+                                                                                                           flat=True)[
+                            i])
         return data
 
     def get_queryset(self):
@@ -77,6 +79,8 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     def report_idc(self, request, ipaddress):
         try:
             data = IPInfo.objects.get(ipaddress=ipaddress)
+
+            # 只要分数不等于 0 则删除节点防火墙规则
             if data.recaptcha_score == 0:
                 code = 200
             else:
@@ -114,7 +118,8 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         """
         time = timezone.now() - datetime.timedelta(hours=2)
 
-        data = self.queryset.filter(recaptcha_score__gt=0.1, update_at__gt=time).values_list('ipaddress', flat=True)
+        data = self.queryset.filter(recaptcha_score__gte=0.3, risk=RiskStatus.REAL_PERSON,
+                                    update_at__gt=time).values_list('ipaddress', flat=True)
         data = list(data)
         return Response(data + self.random_queryset(self.queryset))
 
