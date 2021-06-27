@@ -4,7 +4,7 @@ import geoip2.database
 import requests
 
 IDCs = ["ALIBABA", "TENCENT", "AMAZON", "AS-CHOOPA",
-        "DATA COMMUNICATION BUSINESS GROUP", "HKT LIMITED", "ORACLE", "HONG KONG"]
+        "DATA COMMUNICATION BUSINESS GROUP", "HKT LIMITED", "ORACLE", "HONG KONG", "LINODE"]
 
 
 class IPInfo:
