@@ -1,6 +1,10 @@
 import datetime
+import random
 import traceback
+from typing import List, Union
 
+from django.db.models import Q
+from django.db.models import QuerySet
 from django.utils import timezone
 from rest_framework import viewsets, permissions
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -37,6 +41,15 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
+    @staticmethod
+    def random_queryset(queryset: Union[QuerySet, List[IPInfo]]):
+        total = queryset.count()
+        L1 = random.sample(range(0, total), 5)
+        data = []
+        for i in L1:
+            data.append(queryset.all().values_list('ipaddress', flat=True)[i])
+        return data
+
     def get_queryset(self):
         return self.queryset.all()
 
@@ -67,7 +80,11 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
                                             source_ip=self.get_ipaddress(request))
                 return Response(IPInfoSerializer(obj).data)
             else:
-                return Response({'detail': 'not found'}, status=404)
+                risk_type = RiskStatus.MALICIOUS_IP
+
+                obj = IPInfo.objects.create(ipaddress=ipaddress, risk=risk_type, asn_info=ip_info.asn,
+                                            source_ip=self.get_ipaddress(request))
+                return Response(IPInfoSerializer(obj).data)
 
     @action(methods=['POST'], detail=False, permission_classes=[permissions.AllowAny],
             serializer_class=GoogleRecaptchaVerifySerializer)
@@ -86,16 +103,23 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         time = timezone.now() - datetime.timedelta(hours=2)
 
         data = self.queryset.filter(recaptcha_score__gt=0.1, update_at__gt=time).values_list('ipaddress', flat=True)
-        return Response(data)
+        data = list(data)
+        return Response(data + self.random_queryset(self.queryset))
 
     @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def all_human_ip(self, request, *args, **kwargs):
         data = self.queryset.filter(recaptcha_score__gt=0.5).values_list('ipaddress', flat=True)
+
         return Response(data)
 
     @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def all_non_human_ip(self, request, *args, **kwargs):
-        data = self.queryset.filter(recaptcha_score=0, risk=RiskStatus.NON_HUMAN).values_list('ipaddress', flat=True)
+        # data1 = self.queryset.filter(recaptcha_score=0, risk=RiskStatus.NON_HUMAN).values_list('ipaddress', flat=True)
+        data = self.queryset.filter(Q(recaptcha_score=0),
+                                     Q(risk=RiskStatus.NON_HUMAN) | Q(risk=RiskStatus.MALICIOUS_IP)).values_list(
+            'ipaddress',
+            flat=True)
+
         return Response(data)

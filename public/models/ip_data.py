@@ -7,6 +7,7 @@ from base.model import BaseModel
 class RiskStatus(models.IntegerChoices):
     REAL_PERSON = 1
     NON_HUMAN = 2
+    MALICIOUS_IP = 3
 
 
 class IPInfo(BaseModel):
