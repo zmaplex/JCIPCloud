@@ -47,7 +47,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         L1 = random.sample(range(0, total), 5)
         data = []
         for i in L1:
-            data.append(queryset.all().values_list('ipaddress', flat=True)[i])
+            data.append(queryset.filter(recaptcha_score__gt=0.1).values_list('ipaddress', flat=True)[i])
         return data
 
     def get_queryset(self):
