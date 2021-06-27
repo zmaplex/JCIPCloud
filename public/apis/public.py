@@ -43,8 +43,12 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
 
     @staticmethod
     def random_queryset(queryset: Union[QuerySet, List[IPInfo]]):
-        total = queryset.count()
-        L1 = random.sample(range(0, total), 5)
+        total = queryset.filter(recaptcha_score__gt=0.1).count()
+        random_number = 5
+        if total < 5:
+            random_number = total
+
+        L1 = random.sample(range(0, total), random_number)
         data = []
         for i in L1:
             data.append(queryset.filter(recaptcha_score__gt=0.1).values_list('ipaddress', flat=True)[i])
@@ -61,9 +65,10 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         except Exception:
             return Response(traceback.format_exc(), status=500)
 
-    @action(methods=['POST'], detail=False,serializer_class=NormalIPInfoSerializer, permission_classes=[permissions.AllowAny])
-    def report_white_ip(self, request,*args,**kwargs):
-        serializer = NormalIPInfoSerializer(data=request.data,context={'request': request})
+    @action(methods=['POST'], detail=False, serializer_class=NormalIPInfoSerializer,
+            permission_classes=[permissions.AllowAny])
+    def report_white_ip(self, request, *args, **kwargs):
+        serializer = NormalIPInfoSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             instance = serializer.save()
             return Response(instance.data)
@@ -125,7 +130,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     def all_non_human_ip(self, request, *args, **kwargs):
         # data1 = self.queryset.filter(recaptcha_score=0, risk=RiskStatus.NON_HUMAN).values_list('ipaddress', flat=True)
         data = self.queryset.filter(Q(recaptcha_score=0),
-                                     Q(risk=RiskStatus.NON_HUMAN) | Q(risk=RiskStatus.MALICIOUS_IP)).values_list(
+                                    Q(risk=RiskStatus.NON_HUMAN) | Q(risk=RiskStatus.MALICIOUS_IP)).values_list(
             'ipaddress',
             flat=True)
 
