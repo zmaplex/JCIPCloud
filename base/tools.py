@@ -61,6 +61,8 @@ class Geoip2Query():
 
     def query_city(self, ip, locales='zh-CN') -> IPInfo:
         try:
+            if '127.0.0.' in ip:
+                ip = "8.8.8.8"
             data = self._instance_city.city(ip)
             asn = self.query_asn(ip)
 
@@ -78,7 +80,7 @@ class Geoip2Query():
             return IPInfo(**ip_info)
         except Exception as e:
             raise e
-            return IPInfo()
+            #return IPInfo()
 
     def is_IDC(self, asn: str):
         asn = asn.upper()
