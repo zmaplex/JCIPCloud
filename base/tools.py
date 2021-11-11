@@ -25,8 +25,17 @@ class IPInfo:
             data = '{}-{}-{} {}'.format(self.continent, self.country, self.province, self.asn)
         return data
 
+def is_old_file(file):
+    try:
+        s = os.path.getmtime(file)
+        e = time.time()
+        print(e - s)
+        return int((e - s) / 60 / 60 / 24) > 1
+    except:
+        return  False
 
-class Geoip2Query():
+
+class Geoip2Query:
     _instance_asn = None
     _instance_city = None
 
@@ -34,12 +43,12 @@ class Geoip2Query():
         url_asn = "https://git.io/GeoLite2-ASN.mmdb"
         url_city = "https://git.io/GeoLite2-City.mmdb"
 
-        if not os.path.exists('GeoLite2-ASN.mmdb'):
+        if  not os.path.exists('GeoLite2-ASN.mmdb') or is_old_file('GeoLite2-ASN.mmdb'):
             res = requests.get(url_asn)
             with open('GeoLite2-ASN.mmdb', 'wb') as f:
                 f.write(res.content)
 
-        if not os.path.exists('GeoLite2-City.mmdb'):
+        if not os.path.exists('GeoLite2-City.mmdb') or is_old_file('GeoLite2-City.mmdb'):
             res = requests.get(url_city)
             with open('GeoLite2-City.mmdb', 'wb') as f:
                 f.write(res.content)
