@@ -7,6 +7,24 @@ import traceback
 from abc import ABC
 
 
+class InstallShell(ABC):
+    @abc.abstractmethod
+    def install(self):
+        pass
+
+    @abc.abstractmethod
+    def enable(self):
+        pass
+
+    @abc.abstractmethod
+    def disable(self):
+        pass
+
+    @abc.abstractmethod
+    def uninstall(self):
+        pass
+
+
 class ABSPlugin(ABC):
 
     @staticmethod
