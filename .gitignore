@@ -141,3 +141,5 @@ dmypy.json
 cython_debug/
 
 /tmp/
+/GeoLite2-ASN.mmdb
+/GeoLite2-City.mmdb

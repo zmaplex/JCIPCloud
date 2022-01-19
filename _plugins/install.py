@@ -1,5 +1,4 @@
 import os
-import time
 
 try:
     from fetch_import import _im_fetch
@@ -13,10 +12,9 @@ except:
     _im_fetch(url, _globals=globals(), attrs=["ABSPlugin", "InstallShell"])
 
 
-
 class Install(ABSPlugin):
     target_list = {
-        "ufw": UFW
+        "UFW": "https://fastly.jsdelivr.net/gh/zmaplex/JCIPCloud@master/_plugins/ufw.py"
     }
 
     def execution(self, *args, **kwargs):
@@ -24,8 +22,11 @@ class Install(ABSPlugin):
         action = kwargs.get("action", None)
         if target not in self.target_list:
             return
-        target_obj = self.target_list.get(target)
-        instance = target_obj()
+        plugin_url = self.target_list.get(target)
+        attrs = {}
+        _im_fetch(plugin_url, _globals=attrs, attrs=['*'])
+        print(attrs)
+        instance = attrs.get(target)()
 
         if action and hasattr(instance, action):
             getattr(instance, action)()
@@ -33,6 +34,6 @@ class Install(ABSPlugin):
 
 if __name__ == '__main__':
     a = Install()
-    a.run(lock=True, target="ufw", action="uninstall")
-    a.run(lock=True, target="ufw", action="install")
-    a.run(lock=True, target="ufw", action="enable")
+    a.run(lock=True, target="UFW", action="uninstall")
+    a.run(lock=True, target="UFW", action="install")
+    a.run(lock=True, target="UFW", action="enable")
