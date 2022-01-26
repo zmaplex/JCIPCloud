@@ -2,6 +2,7 @@ import os
 import time
 import traceback
 
+
 class Geoip2Query():
     _instance = None
     idc_list = ["ALIBABA", "TENCENT", "AMAZON", "AS-CHOOPA",
