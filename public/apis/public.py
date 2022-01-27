@@ -112,7 +112,8 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         """
         time = timezone.now() - datetime.timedelta(hours=2)
 
-        data = self.queryset.filter(Q(risk=RiskStatus.NON_HUMAN) | Q(risk=RiskStatus.MALICIOUS_IP),
+        data = self.queryset.filter(risk=RiskStatus.MALICIOUS_IP,
+                                    recaptcha_score=0,
                                     update_at__gt=time).values_list('ipaddress', flat=True)
         data = list(data)
         return Response(data + self.random_queryset(self.queryset))
