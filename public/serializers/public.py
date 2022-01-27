@@ -1,3 +1,5 @@
+import traceback
+
 import requests
 from django.conf import settings
 from rest_framework import serializers
@@ -13,6 +15,53 @@ class IPInfoSerializer(BaseModelSerializer):
     class Meta:
         model = IPInfo
         fields = '__all__'
+
+
+class UpdateBatchSerializer(GeneralSerializer):
+    is_allow = serializers.BooleanField()
+    ipaddresses = serializers.ListField(child=serializers.IPAddressField())
+
+    def create(self, validated_data):
+        """
+        {"is_allow": true,"ipaddresses": ["1.1.1.1","1.1.1.2"]}
+        """
+        source_ip = self.get_ipaddress()
+        ipaddresses = validated_data.get('ipaddresses', [])
+        is_allow = validated_data.get('is_allow', False)
+        if is_allow:
+            risk = RiskStatus.REAL_PERSON
+            score = 0.3
+        else:
+            risk = RiskStatus.MALICIOUS_IP
+            score = 0
+
+        data_list = []
+        for ip in ipaddresses:
+            ip_info = geo_ip.query_city(ip)
+            defaults = {'risk': risk,
+                        'asn_info': ip_info.asn,
+                        'source_ip': source_ip,
+                        "ipaddress": ip,
+                        'recaptcha_score': score}
+            data_list.append(IPInfo(**defaults))
+        if is_allow:
+            try:
+                data = IPInfo.objects.bulk_create(data_list, ignore_conflicts=True)
+                res = IPInfo.objects.filter(ipaddress__in=data_list, risk=RiskStatus.MALICIOUS_IP, recaptcha_score=0)
+                print(res)
+                res.update(risk=RiskStatus.REAL_PERSON, recaptcha_score=0.3)
+                return IPInfoSerializer(data, many=True).data
+            except:
+                print(traceback.format_exc())
+                return "批量更新白名单出错\n{}".format(traceback.format_exc())
+        else:
+            try:
+                data = IPInfo.objects.bulk_create(data_list, ignore_conflicts=True)
+                return IPInfoSerializer(data, many=True).data
+            except:
+                print(traceback.format_exc())
+                return "批量更新黑名单出错\n{}".format(traceback.format_exc())
+        return "ok"
 
 
 class NormalIPInfoSerializer(GeneralSerializer):
@@ -33,7 +82,7 @@ class NormalIPInfoSerializer(GeneralSerializer):
         defaults = {'risk': risk,
                     'asn_info': ip_info.asn,
                     'source_ip': source_ip,
-                    'recaptcha_score':score}
+                    'recaptcha_score': score}
 
         obj, created = IPInfo.objects.update_or_create(ipaddress=ipaddress, defaults=defaults)
 

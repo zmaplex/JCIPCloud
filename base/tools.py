@@ -26,6 +26,7 @@ class IPInfo:
         return data
 
 def is_old_file(file):
+    import time
     try:
         s = os.path.getmtime(file)
         e = time.time()

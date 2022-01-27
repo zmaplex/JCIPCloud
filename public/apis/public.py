@@ -14,13 +14,38 @@ from rest_framework_extensions.cache.decorators import cache_response
 
 from base.tools import Geoip2Query
 from public.models import IPInfo, RiskStatus
-from public.serializers.public import IPInfoSerializer, GoogleRecaptchaVerifySerializer, NormalIPInfoSerializer
+from public.serializers.public import IPInfoSerializer, GoogleRecaptchaVerifySerializer, NormalIPInfoSerializer, \
+    UpdateBatchSerializer
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
         return  # To not perform the csrf check previously happening
+
+
+class ReportView(viewsets.ReadOnlyModelViewSet):
+    queryset = IPInfo.objects.all()
+    serializer_class = IPInfoSerializer
+    geoip_2_query = Geoip2Query()
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    @staticmethod
+    def get_ipaddress(request) -> str:
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    @action(methods=['POST'], detail=False, permission_classes=[permissions.AllowAny],
+            serializer_class=UpdateBatchSerializer)
+    def update_batch_ip(self, request, *args, **kwargs):
+        serializer = UpdateBatchSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            instance = serializer.save()
+            return Response(instance)
 
 
 class PublicView(viewsets.ReadOnlyModelViewSet):
@@ -94,7 +119,6 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
             obj = IPInfo.objects.create(ipaddress=ipaddress, risk=risk_type, asn_info=ip_info.asn,
                                         source_ip=self.get_ipaddress(request))
             return Response(IPInfoSerializer(obj).data)
-
 
     @action(methods=['POST'], detail=False, permission_classes=[permissions.AllowAny],
             serializer_class=GoogleRecaptchaVerifySerializer)
