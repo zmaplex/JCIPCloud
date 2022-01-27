@@ -116,7 +116,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
                                     recaptcha_score=0,
                                     update_at__gt=time).values_list('ipaddress', flat=True)
         data = list(data)
-        return Response(data + self.random_queryset(self.queryset))
+        return Response(data)
 
     @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
