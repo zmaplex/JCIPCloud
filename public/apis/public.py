@@ -89,18 +89,12 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
 
         except IPInfo.DoesNotExist:
             ip_info = self.geoip_2_query.query_city(ipaddress)
-            if ip_info.is_idc:
-                risk_type = RiskStatus.NON_HUMAN
-                print(ip_info.asn)
-                obj = IPInfo.objects.create(ipaddress=ipaddress, risk=risk_type, asn_info=ip_info.asn,
-                                            source_ip=self.get_ipaddress(request))
-                return Response(IPInfoSerializer(obj).data)
-            else:
-                risk_type = RiskStatus.MALICIOUS_IP
+            risk_type = RiskStatus.MALICIOUS_IP
 
-                obj = IPInfo.objects.create(ipaddress=ipaddress, risk=risk_type, asn_info=ip_info.asn,
-                                            source_ip=self.get_ipaddress(request))
-                return Response(IPInfoSerializer(obj).data)
+            obj = IPInfo.objects.create(ipaddress=ipaddress, risk=risk_type, asn_info=ip_info.asn,
+                                        source_ip=self.get_ipaddress(request))
+            return Response(IPInfoSerializer(obj).data)
+
 
     @action(methods=['POST'], detail=False, permission_classes=[permissions.AllowAny],
             serializer_class=GoogleRecaptchaVerifySerializer)
