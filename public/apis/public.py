@@ -112,6 +112,19 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
 
     @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
+    def the_past_hour_non_human_ip(self, request, *args, **kwargs):
+        """
+        过去一小时的恶意IP活动记录
+        """
+        time = timezone.now() - datetime.timedelta(hours=2)
+
+        data = self.queryset.filter(Q(risk=RiskStatus.NON_HUMAN) | Q(risk=RiskStatus.MALICIOUS_IP),
+                                    update_at__gt=time).values_list('ipaddress', flat=True)
+        data = list(data)
+        return Response(data + self.random_queryset(self.queryset))
+
+    @cache_response(timeout=1 * 60, cache='default')
+    @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def the_past_hour_human_ip(self, request, *args, **kwargs):
         """
         过去一小时的真人IP活动记录
