@@ -53,7 +53,7 @@ class UpdateBatchSerializer(GeneralSerializer):
                     msg = "解封{}个误封IP, ".format(len(res))
                 else:
                     msg = ""
-                msg += "共计处理{}个白名单IP, 来自 {}".format(len(data),source_ip)
+                msg += "共计处理{}个白名单IP, 来自 {}".format(len(data), source_ip)
                 res.update(risk=RiskStatus.REAL_PERSON, recaptcha_score=0.3)
                 print(msg)
                 return msg
@@ -107,9 +107,12 @@ class GoogleRecaptchaVerifySerializer(GeneralSerializer):
         score = validated_data.get('token', 0)
         ip_info = geo_ip.query_city(ipaddress)
 
-        if score < 0.3 or ip_info.is_idc:
+        if score < 0.3:
             score = 0.1
             risk = RiskStatus.NON_HUMAN
+        elif ip_info.is_idc:
+            score = 0
+            risk = RiskStatus.MALICIOUS_IP
         else:
             risk = RiskStatus.REAL_PERSON
         defaults = {'risk': risk,
