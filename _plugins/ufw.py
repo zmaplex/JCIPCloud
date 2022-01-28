@@ -17,6 +17,8 @@ class UFW(InstallShell):
     def enable(self):
         cmd = """
                 echo "y" | /usr/sbin/ufw enable > /dev/null
+                /usr/sbin/ufw allow ssh
+                /usr/sbin/ufw allow 22
                 systemctl enable ufw
                 systemctl start ufw
             """

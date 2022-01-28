@@ -158,7 +158,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def all_human_ip(self, request, *args, **kwargs):
-        data = self.queryset.filter(recaptcha_score__gt=0.5).values_list('ipaddress', flat=True)
+        data = self.queryset.order_by().filter(risk=RiskStatus.REAL_PERSON).values_list('ipaddress', flat=True)
 
         return Response(data)
 

@@ -48,16 +48,24 @@ class UpdateBatchSerializer(GeneralSerializer):
             try:
                 data = IPInfo.objects.bulk_create(data_list, ignore_conflicts=True)
                 res = IPInfo.objects.filter(ipaddress__in=data_list, risk=RiskStatus.MALICIOUS_IP, recaptcha_score=0)
-                print(res)
+                num = len(res)
+                if num > 0:
+                    msg = "解封{}个误封IP".format(len(res))
+                else:
+                    msg = ""
+                msg += ", 共计处理{}个白名单IP".format(len(data))
                 res.update(risk=RiskStatus.REAL_PERSON, recaptcha_score=0.3)
-                return IPInfoSerializer(data, many=True).data
+                print(msg)
+                return msg
             except:
                 print(traceback.format_exc())
                 return "批量更新白名单出错\n{}".format(traceback.format_exc())
         else:
             try:
                 data = IPInfo.objects.bulk_create(data_list, ignore_conflicts=True)
-                return IPInfoSerializer(data, many=True).data
+                msg = "共计处理{}个黑名单IP".format(len(data))
+                print(msg)
+                return msg
             except:
                 print(traceback.format_exc())
                 return "批量更新黑名单出错\n{}".format(traceback.format_exc())
