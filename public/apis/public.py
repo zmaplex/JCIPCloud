@@ -140,6 +140,8 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
                                     recaptcha_score=0,
                                     update_at__gt=time).values_list('ipaddress', flat=True)
         data = list(data)
+        if len(data) > 100:
+            data = data[:100]
         return Response(data)
 
     @cache_response(timeout=1 * 60, cache='default')
