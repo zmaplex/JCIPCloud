@@ -148,9 +148,9 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def the_past_hour_human_ip(self, request, *args, **kwargs):
         """
-        过去一小时的真人IP活动记录
+        过去五分钟的真人IP活动记录
         """
-        time = timezone.now() - datetime.timedelta(hours=2)
+        time = timezone.now() - datetime.timedelta(minutes=5)
 
         data = self.queryset.filter(recaptcha_score__gte=0.3, risk=RiskStatus.REAL_PERSON,
                                     update_at__gt=time).values_list('ipaddress', flat=True)
