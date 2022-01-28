@@ -159,14 +159,14 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
             data = data[:1000]
         return Response(data)
 
-    @cache_response(timeout=1 * 60, cache='default')
+    @cache_response(timeout=60 * 60 * 12, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def all_human_ip(self, request, *args, **kwargs):
         data = self.queryset.order_by().filter(risk=RiskStatus.REAL_PERSON).values_list('ipaddress', flat=True)
 
         return Response(data)
 
-    @cache_response(timeout=1 * 60, cache='default')
+    @cache_response(timeout=60 * 60 * 12, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def all_non_human_ip(self, request, *args, **kwargs):
         # data1 = self.queryset.filter(recaptcha_score=0, risk=RiskStatus.NON_HUMAN).values_list('ipaddress', flat=True)
