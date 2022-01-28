@@ -80,7 +80,7 @@ class Geoip2Query:
             if not asn:
                 asn = "unknown"
 
-            ip_info = {'continent': data.continent.names[locales], 'country': data.country.names[locales],
+            ip_info = {'continent': data.continent.name, 'country': data.country.name,
                        'province': None,
                        'country_iso_code': data.country.iso_code,
                        'province_iso_code': data.subdivisions.most_specific.iso_code, 'asn': asn,
@@ -92,8 +92,8 @@ class Geoip2Query:
             return IPInfo(**ip_info)
         except Exception as e:
             data = self._instance_city.city(ip)
-            pprint(data.continent.names)
-            pprint(data.country.names)
+            pprint(data.continent)
+            pprint(data.country)
             raise e
             #return IPInfo()
 

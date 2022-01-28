@@ -50,10 +50,10 @@ class UpdateBatchSerializer(GeneralSerializer):
                 res = IPInfo.objects.filter(ipaddress__in=data_list, risk=RiskStatus.MALICIOUS_IP, recaptcha_score=0)
                 num = len(res)
                 if num > 0:
-                    msg = "解封{}个误封IP".format(len(res))
+                    msg = "解封{}个误封IP, ".format(len(res))
                 else:
                     msg = ""
-                msg += ", 共计处理{}个白名单IP".format(len(data))
+                msg += "共计处理{}个白名单IP, 来自 {}".format(len(data),source_ip)
                 res.update(risk=RiskStatus.REAL_PERSON, recaptcha_score=0.3)
                 print(msg)
                 return msg
