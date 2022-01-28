@@ -1,4 +1,5 @@
 import os
+from pprint import pprint
 
 import geoip2.database
 import requests
@@ -78,6 +79,7 @@ class Geoip2Query:
 
             if not asn:
                 asn = "unknown"
+            pprint(data.continent.names)
             ip_info = {'continent': data.continent.names[locales], 'country': data.country.names[locales],
                        'province': None,
                        'country_iso_code': data.country.iso_code,
