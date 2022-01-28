@@ -153,7 +153,9 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         data = self.queryset.filter(recaptcha_score__gte=0.3, risk=RiskStatus.REAL_PERSON,
                                     update_at__gt=time).values_list('ipaddress', flat=True)
         data = list(data)
-        return Response(data + self.random_queryset(self.queryset))
+        if len(data) > 1000:
+            data = data[:1000]
+        return Response(data)
 
     @cache_response(timeout=1 * 60, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
