@@ -70,7 +70,7 @@ class Geoip2Query:
         except:
             return None
 
-    def query_city(self, ip, locales='zh-CN') -> IPInfo:
+    def query_city(self, ip, locales='en') -> IPInfo:
         try:
             if '127.0.0.' in ip:
                 ip = "8.8.8.8"
@@ -79,7 +79,7 @@ class Geoip2Query:
 
             if not asn:
                 asn = "unknown"
-            pprint(data.continent.names)
+
             ip_info = {'continent': data.continent.names[locales], 'country': data.country.names[locales],
                        'province': None,
                        'country_iso_code': data.country.iso_code,
