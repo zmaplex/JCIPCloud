@@ -91,6 +91,9 @@ class Geoip2Query:
 
             return IPInfo(**ip_info)
         except Exception as e:
+            data = self._instance_city.city(ip)
+            pprint(data.continent.names)
+            pprint(data.country.names)
             raise e
             #return IPInfo()
 
