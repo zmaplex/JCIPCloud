@@ -28,6 +28,7 @@ INSTALLED_APPS = [
 SPECTACULAR_SETTINGS = spectacular.SPECTACULAR_DEFAULTS
 
 MIDDLEWARE = [
+    'base.middleware.PerformanceStatistics',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

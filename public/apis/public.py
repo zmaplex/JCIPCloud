@@ -65,7 +65,7 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         else:
             ip = request.META.get('REMOTE_ADDR')
         if ip == "127.0.0.1":
-            ip = "8.8.8.8"
+            ip = "18.170.238.178"
         return ip
 
     @staticmethod
