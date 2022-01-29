@@ -3,9 +3,9 @@ pycryptodome
 six
 python-decouple
 requests~=2.24.0
-django~=3.1.2
+django~=3.2
 django-cors-headers
-djangorestframework==3.11.2
+djangorestframework==3.12.4
 pytz
 sqlparse
 coreapi

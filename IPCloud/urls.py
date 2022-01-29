@@ -22,15 +22,18 @@ from django.views import static
 from drf_spectacular.views import SpectacularRedocView, SpectacularSwaggerView, SpectacularAPIView
 from rest_framework.routers import DefaultRouter
 
+from public import views
 from public.apis import public
 
 router = DefaultRouter()
-router.register(r'public', public.PublicView)
-router.register(r'report', public.ReportView)
+router.register('report', public.ReportView,basename="report")
+router.register('public', public.PublicView,basename="public")
+
+
 urlpatterns = [
-    path('', include('public.urls')),
+    # path('', include('public.urls')),
+    path('', views.IndexView.as_view(), name='index'),
     path('admin/', admin.site.urls),
-    path('public/', include('public.urls')),
     url(r'api/', include(router.urls)),
     url(r'^static/(?P<path>.*)$', static.serve,
         {'document_root': settings.STATIC_ROOT}, name='static'),

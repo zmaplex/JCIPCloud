@@ -1,4 +1,5 @@
 import os
+import traceback
 from pprint import pprint
 
 import geoip2.database
@@ -26,6 +27,7 @@ class IPInfo:
             data = '{}-{}-{} {}'.format(self.continent, self.country, self.province, self.asn)
         return data
 
+
 def is_old_file(file):
     import time
     try:
@@ -34,18 +36,18 @@ def is_old_file(file):
         print(e - s)
         return int((e - s) / 60 / 60 / 24) > 1
     except:
-        return  False
+        return False
 
 
 class Geoip2Query:
-    _instance_asn = None
-    _instance_city = None
+    _instance_asn: geoip2.database.Reader = None
+    _instance_city: geoip2.database.Reader = None
 
     def __init__(self) -> None:
         url_asn = "https://git.io/GeoLite2-ASN.mmdb"
         url_city = "https://git.io/GeoLite2-City.mmdb"
 
-        if  not os.path.exists('GeoLite2-ASN.mmdb') or is_old_file('GeoLite2-ASN.mmdb'):
+        if not os.path.exists('GeoLite2-ASN.mmdb') or is_old_file('GeoLite2-ASN.mmdb'):
             res = requests.get(url_asn)
             with open('GeoLite2-ASN.mmdb', 'wb') as f:
                 f.write(res.content)
@@ -57,18 +59,26 @@ class Geoip2Query:
 
         if Geoip2Query._instance_asn is None:
             Geoip2Query._instance_asn = geoip2.database.Reader(
-                'GeoLite2-ASN.mmdb', locales=['zh-CN'])
+                'GeoLite2-ASN.mmdb', locales=['en'])
 
         if Geoip2Query._instance_city is None:
             Geoip2Query._instance_city = geoip2.database.Reader(
-                'GeoLite2-City.mmdb', locales=['zh-CN'])
+                'GeoLite2-City.mmdb', locales=['en'])
 
     def query_asn(self, ip):
         try:
             data = self._instance_asn.asn(ip)
             return data.autonomous_system_organization.upper()
         except:
-            return None
+            return "unknown"
+
+    def query_all_asn(self, ip):
+        try:
+            data = self._instance_asn.asn(ip)
+            return dict(data.raw)
+        except:
+            print(traceback.format_exc())
+            return "unknown"
 
     def query_city(self, ip, locales='en') -> IPInfo:
         try:
@@ -95,7 +105,7 @@ class Geoip2Query:
             pprint(data.continent)
             pprint(data.country)
             raise e
-            #return IPInfo()
+            # return IPInfo()
 
     def is_IDC(self, asn: str):
         asn = asn.upper()

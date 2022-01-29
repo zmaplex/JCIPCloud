@@ -64,6 +64,8 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
+        if ip == "127.0.0.1":
+            ip = "8.8.8.8"
         return ip
 
     @staticmethod
@@ -89,6 +91,15 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
         try:
             ip = self.get_ipaddress(request)
             return Response(ip)
+        except Exception:
+            return Response(traceback.format_exc(), status=500)
+
+    @action(methods=["GET"], detail=False, permission_classes=[permissions.AllowAny])
+    def ip(self, request, *args, **kwargs):
+        try:
+            ip = self.get_ipaddress(request)
+
+            return Response({"ip": ip,"info":self.geoip_2_query.query_all_asn(ip)})
         except Exception:
             return Response(traceback.format_exc(), status=500)
 
