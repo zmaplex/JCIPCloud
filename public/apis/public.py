@@ -173,7 +173,8 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     @cache_response(timeout=60 * 60 * 12, cache='default')
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def all_human_ip(self, request, *args, **kwargs):
-        data = self.queryset.order_by().filter(risk=RiskStatus.REAL_PERSON).values_list('ipaddress', flat=True)
+        time = timezone.now() - datetime.timedelta(weeks=6)
+        data = self.queryset.order_by().filter(risk=RiskStatus.REAL_PERSON,update_at__gt=time).values_list('ipaddress', flat=True)
 
         return Response(data)
 
@@ -181,8 +182,9 @@ class PublicView(viewsets.ReadOnlyModelViewSet):
     @action(methods=['GET'], detail=False, permission_classes=[permissions.AllowAny])
     def all_non_human_ip(self, request, *args, **kwargs):
         # data1 = self.queryset.filter(recaptcha_score=0, risk=RiskStatus.NON_HUMAN).values_list('ipaddress', flat=True)
+        time = timezone.now() - datetime.timedelta(weeks=6)
         data = self.queryset.filter(Q(recaptcha_score=0),
-                                    Q(risk=RiskStatus.NON_HUMAN) | Q(risk=RiskStatus.MALICIOUS_IP)).values_list(
+                                    Q(risk=RiskStatus.NON_HUMAN) | Q(risk=RiskStatus.MALICIOUS_IP),update_at__gt=time).values_list(
             'ipaddress',
             flat=True)
 
